@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Query, BadRequestException } from '@nestjs/common';
 import { SenderService } from './sender.service';
 import { CreateSenderDto, FindAllSenderDto } from './dto/create-sender.dto';
 import { UpdateSenderDto } from './dto/update-sender.dto';
@@ -30,6 +30,13 @@ export class SenderController {
     @UploadedFile() file: Express.Multer.File,
     @Body('text') text: string,
   ) {
+    if (!file) {
+      throw new BadRequestException('Fayl majburiy');
+    }
+
+    if (!text || text.trim() === '') {
+      throw new BadRequestException('Matn (text) majburiy');
+    }
     return this.senderService.create(file, text);
   }
 // }
