@@ -3,14 +3,28 @@ import { SenderService } from './sender.service';
 import { CreateSenderDto, FindAllSenderDto } from './dto/create-sender.dto';
 import { UpdateSenderDto } from './dto/update-sender.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 
 @Controller('sender-file')
 export class SenderController {
   constructor(private readonly senderService: SenderService) {}
   
   @Post()
-  @ApiBody({ type: [FindAllSenderDto] })
+  @ApiConsumes('multipart/form-data') // MUHIM: multipart deb belgilaydi!
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+        text: {
+          type: 'string',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   create(
     @UploadedFile() file: Express.Multer.File,
@@ -18,6 +32,7 @@ export class SenderController {
   ) {
     return this.senderService.create(file, text);
   }
+// }
   
 
   @Get('sms-status')
@@ -44,4 +59,5 @@ export class SenderController {
   // remove(@Param('id') id: string) {
   //   return this.senderService.remove(+id);
   // }
+// }
 }
